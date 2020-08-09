@@ -9,7 +9,7 @@
 
 
 int _c_cpp_seccomp_rules(struct config *_config, bool allow_write_file) {
-    int syscalls_whitelist[] = {SCMP_SYS(read), SCMP_SYS(fstat),
+    int syscalls_whitelist[] = {SCMP_SYS(read), SCMP_SYS(fstat), SCMP_SYS(pread64),
                                 SCMP_SYS(mmap), SCMP_SYS(mprotect),
                                 SCMP_SYS(munmap), SCMP_SYS(uname),
                                 SCMP_SYS(arch_prctl), SCMP_SYS(brk),
@@ -32,15 +32,18 @@ int _c_cpp_seccomp_rules(struct config *_config, bool allow_write_file) {
         }
     }
     // add extra rule for execve
-    if (seccomp_rule_add(ctx, SCMP_ACT_ALLOW, SCMP_SYS(execve), 1, SCMP_A0(SCMP_CMP_EQ, (scmp_datum_t)(_config->exe_path))) != 0) {
+    if (seccomp_rule_add(ctx, SCMP_ACT_ALLOW, SCMP_SYS(execve), 1,
+                         SCMP_A0(SCMP_CMP_EQ, (scmp_datum_t) (_config->exe_path))) != 0) {
         return LOAD_SECCOMP_FAILED;
     }
     if (!allow_write_file) {
         // do not allow "w" and "rw"
-        if (seccomp_rule_add(ctx, SCMP_ACT_ALLOW, SCMP_SYS(open), 1, SCMP_CMP(1, SCMP_CMP_MASKED_EQ, O_WRONLY | O_RDWR, 0)) != 0) {
+        if (seccomp_rule_add(ctx, SCMP_ACT_ALLOW, SCMP_SYS(open), 1,
+                             SCMP_CMP(1, SCMP_CMP_MASKED_EQ, O_WRONLY | O_RDWR, 0)) != 0) {
             return LOAD_SECCOMP_FAILED;
         }
-        if (seccomp_rule_add(ctx, SCMP_ACT_ALLOW, SCMP_SYS(openat), 1, SCMP_CMP(2, SCMP_CMP_MASKED_EQ, O_WRONLY | O_RDWR, 0)) != 0) {
+        if (seccomp_rule_add(ctx, SCMP_ACT_ALLOW, SCMP_SYS(openat), 1,
+                             SCMP_CMP(2, SCMP_CMP_MASKED_EQ, O_WRONLY | O_RDWR, 0)) != 0) {
             return LOAD_SECCOMP_FAILED;
         }
     } else {

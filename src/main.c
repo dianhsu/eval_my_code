@@ -44,7 +44,7 @@ int main(int argc, char *argv[]) {
            "signal: %d\n"
            "exit_code: %d\n"
            "error: %d\n"
-           "result: %d\n"
+           "result: %d\n",
            _result.cpu_time,
            _result.real_time,
            _result.memory,

@@ -19,9 +19,6 @@
 #include "runner.h"
 #include "child.h"
 #include "logger.h"
-#include "rules/seccomp_rules.h"
-
-#include "killer.h"
 
 
 void close_file(FILE *fp) {
@@ -137,29 +134,6 @@ void child_process(FILE *log_fp, struct config *_config) {
     }
 
     // load seccomp
-    if (_config->seccomp_rule_name != NULL) {
-        if (strcmp("c_cpp", _config->seccomp_rule_name) == 0) {
-            if (c_cpp_seccomp_rules(_config) != SUCCESS) {
-                CHILD_ERROR_EXIT(LOAD_SECCOMP_FAILED);
-            }
-        }
-        else if (strcmp("c_cpp_file_io", _config->seccomp_rule_name) == 0) {
-            if (c_cpp_file_io_seccomp_rules(_config) != SUCCESS) {
-                CHILD_ERROR_EXIT(LOAD_SECCOMP_FAILED);
-            }
-        }
-        else if (strcmp("general", _config->seccomp_rule_name) == 0) {
-            if (general_seccomp_rules(_config) != SUCCESS ) {
-                CHILD_ERROR_EXIT(LOAD_SECCOMP_FAILED);
-            }
-        }
-        // other rules
-        else {
-            // rule does not exist
-            CHILD_ERROR_EXIT(LOAD_SECCOMP_FAILED);
-        }
-    }
-
     execve(_config->exe_path, _config->args, _config->env);
     CHILD_ERROR_EXIT(EXECVE_FAILED);
 }
